@@ -1,0 +1,12 @@
+
+The Multicast Test Tool is a small proof-of-concept app to test an
+Android device's multicast reception capability by displaying all
+received Multicast DNS (mDNS) packets, and allowing the user to
+perform mDNS queries on the network.
+
+More information can be found here:
+http://cafbit.com/entry/testing_multicast_support_on_android
+
+David Simmons
+February 2, 2011
+
