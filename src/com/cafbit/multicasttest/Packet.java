@@ -25,17 +25,17 @@ import java.net.InetAddress;
  * @author simmons
  */
 public class Packet {
-	public InetAddress src;
-	public int srcPort;
-	public InetAddress dst;
-	public int dstPort;
-	public String description;
+    public InetAddress src;
+    public int srcPort;
+    public InetAddress dst;
+    public int dstPort;
+    public String description;
 
-	public Packet() {}
-	public Packet(DatagramPacket dp, DatagramSocket socket) {
-		src = dp.getAddress();
-		srcPort = dp.getPort();
-		dst = socket.getLocalAddress();
-		dstPort = socket.getLocalPort();
-	}
+    public Packet() {}
+    public Packet(DatagramPacket dp, DatagramSocket socket) {
+        src = dp.getAddress();
+        srcPort = dp.getPort();
+        dst = socket.getLocalAddress();
+        dstPort = socket.getLocalPort();
+    }
 }

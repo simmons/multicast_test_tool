@@ -38,17 +38,17 @@ import android.widget.TextView.OnEditorActionListener;
  */
 public class MulticastTestActivity extends Activity implements OnEditorActionListener {
 
-	public static final String TAG = "MulticastTest";
+    public static final String TAG = "MulticastTest";
 
-	private TextView statusLine;
-	private EditText hostBox;
-	private ListView listView;
-	private NetThread netThread = null;
-	private PacketListAdapter packetListAdapter;
+    private TextView statusLine;
+    private EditText hostBox;
+    private ListView listView;
+    private NetThread netThread = null;
+    private PacketListAdapter packetListAdapter;
 
-	/**
-	 * Set up the user interface and perform certain setup steps.
-	 */
+    /**
+     * Set up the user interface and perform certain setup steps.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,69 +72,69 @@ public class MulticastTestActivity extends Activity implements OnEditorActionLis
      * method to initialize the packet list and start the
      * network thread.
      */
-	@Override
-	protected void onResume() {
-		super.onResume();
-		Log.v(TAG, "resume activity");
-		
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.v(TAG, "resume activity");
+        
         packetListAdapter = new PacketListAdapter(this);
         listView.setAdapter(packetListAdapter);
 
-		if (netThread != null) {
-			Log.e(TAG, "netThread should be null!");
-			netThread.submitQuit();
-		}
+        if (netThread != null) {
+            Log.e(TAG, "netThread should be null!");
+            netThread.submitQuit();
+        }
         netThread = new NetThread(this);
         netThread.start();
-	}
+    }
 
-	/**
-	 * This is called when the user leaves the activity to run
-	 * another program.  We stop the network thread when this
-	 * happens.
-	 */
-	@Override
-	protected void onPause() {
-		super.onPause();
-		Log.v(TAG, "pause activity");
-		
-		packetListAdapter.clear();
-		packetListAdapter = null;
-		
-		if (netThread == null) {
-			Log.e(TAG, "netThread should not be null!");
-			return;
-		}
-		netThread.submitQuit();
-		netThread = null;
-	}
+    /**
+     * This is called when the user leaves the activity to run
+     * another program.  We stop the network thread when this
+     * happens.
+     */
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.v(TAG, "pause activity");
+        
+        packetListAdapter.clear();
+        packetListAdapter = null;
+        
+        if (netThread == null) {
+            Log.e(TAG, "netThread should not be null!");
+            return;
+        }
+        netThread.submitQuit();
+        netThread = null;
+    }
 
-	/**
-	 * Support the user pressing "enter" to activate the query.
-	 */
-	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-		handleQueryButton(hostBox);
-		return true;
-	}
+    /**
+     * Support the user pressing "enter" to activate the query.
+     */
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        handleQueryButton(hostBox);
+        return true;
+    }
 
-	/**
-	 * Handle submitting an mDNS query.
-	 */
+    /**
+     * Handle submitting an mDNS query.
+     */
     public void handleQueryButton(View view) {
-    	String host = hostBox.getText().toString().trim();
-    	if (host.length() == 0) {
-    		return;
-    	}
-    	
-    	statusLine.setText("sending query...");
-    	try {
-    		netThread.submitQuery(host);
-    	} catch (Exception e) {
-    		Log.w(TAG, e.getMessage(), e);
-    		statusLine.setText("query error: "+e.getMessage());
-    		return;
-    	}
-    	statusLine.setText("query sent.");
+        String host = hostBox.getText().toString().trim();
+        if (host.length() == 0) {
+            return;
+        }
+        
+        statusLine.setText("sending query...");
+        try {
+            netThread.submitQuery(host);
+        } catch (Exception e) {
+            Log.w(TAG, e.getMessage(), e);
+            statusLine.setText("query error: "+e.getMessage());
+            return;
+        }
+        statusLine.setText("query sent.");
     }
     
     /**
@@ -142,65 +142,65 @@ public class MulticastTestActivity extends Activity implements OnEditorActionLis
      * @param view
      */
     public void handleClearButton(View view) {
-    	packetListAdapter.clear();
+        packetListAdapter.clear();
     }
 
     // inter-process communication
  
-	public IPCHandler ipc = new IPCHandler();
-	
-	/**
-	 * Allow the network thread to send us messages
-	 * via this IPC mechanism.
-	 * @author simmons
-	 */
-	class IPCHandler extends Handler {
+    public IPCHandler ipc = new IPCHandler();
+    
+    /**
+     * Allow the network thread to send us messages
+     * via this IPC mechanism.
+     * @author simmons
+     */
+    class IPCHandler extends Handler {
 
-		private static final int MSG_SET_STATUS = 1;
-	    private static final int MSG_ADD_PACKET = 2;
-	    private static final int MSG_ERROR = 3;
-	
-		@Override
-		public void handleMessage(Message msg) {
-			super.handleMessage(msg);
-			
-			// don't process incoming IPC if we are paused.
-			if (packetListAdapter == null) {
-				Log.w(TAG, "dropping incoming message: "+msg);
-				return;
-			}
-			
-			switch (msg.what) {
-			case MSG_SET_STATUS:
-				statusLine.setText((String)msg.obj);
-				break;
-			case MSG_ADD_PACKET:
-				packetListAdapter.addPacket((Packet)msg.obj);
-				listView.setSelection(packetListAdapter.getCount() - 1);
-				break;
-			case MSG_ERROR:
-				Packet packet = new Packet();
-				packet.description = ((Throwable)msg.obj).getMessage();
-				packetListAdapter.addPacket(packet);
-				listView.setSelection(packetListAdapter.getCount() - 1);
-				break;
-			default:
-				Log.w(TAG, "unknown activity message code: "+msg);
-				break;
-			}
-		}
+        private static final int MSG_SET_STATUS = 1;
+        private static final int MSG_ADD_PACKET = 2;
+        private static final int MSG_ERROR = 3;
+    
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            
+            // don't process incoming IPC if we are paused.
+            if (packetListAdapter == null) {
+                Log.w(TAG, "dropping incoming message: "+msg);
+                return;
+            }
+            
+            switch (msg.what) {
+            case MSG_SET_STATUS:
+                statusLine.setText((String)msg.obj);
+                break;
+            case MSG_ADD_PACKET:
+                packetListAdapter.addPacket((Packet)msg.obj);
+                listView.setSelection(packetListAdapter.getCount() - 1);
+                break;
+            case MSG_ERROR:
+                Packet packet = new Packet();
+                packet.description = ((Throwable)msg.obj).getMessage();
+                packetListAdapter.addPacket(packet);
+                listView.setSelection(packetListAdapter.getCount() - 1);
+                break;
+            default:
+                Log.w(TAG, "unknown activity message code: "+msg);
+                break;
+            }
+        }
 
-		public void setStatus(String status) {
-			sendMessage(Message.obtain(ipc, MSG_SET_STATUS, status));
-		}
+        public void setStatus(String status) {
+            sendMessage(Message.obtain(ipc, MSG_SET_STATUS, status));
+        }
 
-		public void addPacket(Packet packet) {
-			sendMessage(Message.obtain(ipc, MSG_ADD_PACKET, packet));
-		}
+        public void addPacket(Packet packet) {
+            sendMessage(Message.obtain(ipc, MSG_ADD_PACKET, packet));
+        }
 
-		public void error(Throwable throwable) {
-			sendMessage(Message.obtain(ipc, MSG_ERROR, throwable));
-		}
-	};
+        public void error(Throwable throwable) {
+            sendMessage(Message.obtain(ipc, MSG_ERROR, throwable));
+        }
+    };
 
 }
